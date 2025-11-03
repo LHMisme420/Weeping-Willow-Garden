@@ -1096,3 +1096,200 @@ The Empathy Atlas represents not just a technological innovation, but a fundamen
     </script>
 </body>
 </html>
+// prototypes/weeping-willow/sketch.js
+// V2: Integrating Predictive Emotional Scaffolding (DEmS)
+
+let particles = [];
+let treeNodes = [];
+let connectionDistance = 80;
+let predictedState = 'GRIEF_NORMAL'; // Simulated predictive input
+let emotionHue = {
+  'GRIEF_NORMAL': 220,  // Cool blue for serene grief processing
+  'ANGER_REPRESS': 350, // Warm red/pink for turbulent emotion
+  'RELEASE_PEAK': 120   // Green for breakthrough/healing
+};
+
+function setup() {
+  createCanvas(1200, 800);
+  colorMode(HSB, 360, 100, 100, 100);
+  createTreeStructure();
+}
+
+function createTreeStructure() {
+  treeNodes = []; // Reset
+  let trunk = new TreeNode(width / 2, height - 100, null, 15);
+  treeNodes.push(trunk);
+  createBranches(trunk, 7, 120, 0);
+}
+
+function createBranches(parent, depth, branchLength, angle) {
+  if (depth <= 0) return;
+
+  // Dynamic tree structure: Turbulence increases with ANGER_REPRESS state
+  let turbulence = predictedState === 'ANGER_REPRESS' ? PI / 3 : PI / 4;
+  let growthRate = predictedState === 'RELEASE_PEAK' ? 1.1 : 0.7;
+
+  for (let i = 0; i < 3; i++) {
+    let newAngle = angle + random(-turbulence, turbulence);
+    let newLength = branchLength * growthRate;
+    
+    let x = parent.x + cos(newAngle) * newLength;
+    let y = parent.y - sin(newAngle) * newLength;
+    
+    let branch = new TreeNode(x, y, parent, depth);
+    treeNodes.push(branch);
+    
+    createBranches(branch, depth - 1, newLength * 0.7, newAngle);
+  }
+}
+
+function draw() {
+  background(240, 50, 5, 20); // Dark, misty background
+
+  // DEmS: Update state periodically based on hypothetical biometric input
+  updateEmotionalState(); 
+  
+  // Display tree structure (Scaffolding)
+  let treeColor = color(emotionHue[predictedState], 70, 90, 80);
+  for (let node of treeNodes) {
+    if (node.parent) {
+      stroke(treeColor);
+      strokeWeight(node.size * 0.5);
+      line(node.x, node.y, node.parent.x, node.parent.y);
+    }
+  }
+
+  // Update and display particles (Grief/E-Tokens)
+  for (let i = particles.length - 1; i >= 0; i--) {
+    let particle = particles[i];
+    particle.update(predictedState);
+    particle.display();
+    particle.connect(particles);
+    if (particle.alpha < 0) {
+      particles.splice(i, 1);
+    }
+  }
+
+  drawInstructions();
+}
+
+function updateEmotionalState() {
+  // SIMULATED BIOMETRIC/PREDICTIVE INPUT
+  // In a real system, this would be an API call based on HR/GSR/Gaze.
+  if (frameCount % 300 === 0) {
+    let states = ['GRIEF_NORMAL', 'ANGER_REPRESS', 'RELEASE_PEAK'];
+    predictedState = random(states);
+    // Re-create the tree structure to dynamically reflect the scaffolding
+    createTreeStructure(); 
+  }
+}
+
+function drawInstructions() {
+  fill(0, 0, 100, 90);
+  textSize(18);
+  textAlign(CENTER);
+  text("Predictive State: " + predictedState, width / 2, 40);
+
+  fill(emotionHue[predictedState], 70, 90, 100);
+  textSize(14);
+  text("Click to contribute your E-Token (Grief Transformed)", width / 2, height - 30);
+}
+
+function mousePressed() {
+  // A new particle represents a new E-Token contribution
+  let newParticle = new Particle(mouseX, mouseY);
+  newParticle.isNew = true;
+  particles.push(newParticle);
+}
+
+class Particle {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.vx = random(-0.5, 0.5);
+    this.vy = random(-1, -0.5);
+    this.alpha = 100;
+    this.isNew = false;
+    this.size = 6;
+  }
+  
+  update(state) {
+    // Dynamic Movement based on Predictive Scaffolding
+    if (state === 'ANGER_REPRESS') {
+      this.vy += sin(frameCount * 0.1) * 0.2; // Add turbulence
+    } else if (state === 'RELEASE_PEAK') {
+      this.vy *= 0.98; // Slow down and stabilize
+    }
+
+    this.y += this.vy;
+    this.x += this.vx;
+    this.alpha -= 0.5; // Fade over time
+    
+    // Attract towards the central trunk
+    let trunkNode = treeNodes[0];
+    let angle = atan2(trunkNode.y - this.y, trunkNode.x - this.x);
+    this.vx += cos(angle) * 0.01;
+    this.vy += sin(angle) * 0.01;
+    this.vx *= 0.99;
+    this.vy *= 0.99;
+  }
+  
+  display() {
+    let p_hue = lerp(emotionHue[predictedState], 255, 0.5);
+    fill(p_hue, 90, 90, this.alpha);
+    noStroke();
+    ellipse(this.x, this.y, this.size);
+    
+    // Add glow effect
+    drawingContext.shadowBlur = 10;
+    drawingContext.shadowColor = color(p_hue, 90, 90, this.alpha);
+  }
+  
+  connect(particles) {
+    drawingContext.shadowBlur = 0; // Disable shadow for lines
+    for (let other of particles) {
+      let d = dist(this.x, this.y, other.x, other.y);
+      if (d < connectionDistance && d > 1) {
+        let lineAlpha = map(d, 0, connectionDistance, 100, 0);
+        stroke(emotionHue[predictedState], 40, 70, lineAlpha);
+        strokeWeight(1);
+        line(this.x, this.y, other.x, other.y);
+      }
+    }
+  }
+}
+
+class TreeNode {
+  constructor(x, y, parent, depth) {
+    this.x = x;
+    this.y = y;
+    this.parent = parent;
+    this.depth = depth;
+    this.size = map(depth, 1, 7, 2, 10);
+  }
+}
+
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  createTreeStructure();
+}# The Empathy Atlas: Technical Architecture V2
+## Core Innovation: The Empathy Chain (E-Token Ledger)
+
+### 1. Emotional Tokenization Layer (E-Token)
+The Collective Memory System is upgraded to a private, permissioned **Empathy Chain** ledger.
+
+* **E-Token Definition:** A non-fungible digital artifact created upon a moment of verified emotional release (e.g., a particle submission in the Weeping Willow Garden).
+* **Token Payload (Anonymous):**
+    * `TokenID (UUID)`: Unique identifier.
+    * `Timestamp`: Time of release.
+    * `RoomID`: e.g., "WeepingWillowGarden".
+    * `BiometricSignatureHash`: Anonymized hash of biometric state at the moment of creation (ensures uniqueness and clinical truth, but is irreversible).
+    * `EmotionalSpectrum`: Vector representing the emotional state detected (e.g., [Grief: 0.8, Relief: 0.2]).
+* **Security & Privacy:** The chain uses **Zero-Knowledge Proofs (ZKP)** to allow researchers to verify the *existence* and *pattern* of emotional contributions without ever revealing personal data or the precise timestamp/location of a single user.
+
+### 2. Dynamic Emotional Scaffolding (DEmS) Engine
+The evolution of the Emotional Resonance Engine, moving from reactive to predictive guidance.
+
+* **Inputs:** Biometric streams (HRV, GSR, Gaze), Anonymous E-Token historical data.
+* **Predictive Model:** Generates the visitor's `predictedState` (e.g., 'ANGER_REPRESS') which is served to the room's **Real-time Engine** via GraphQL subscription.
+* **Outputs (Scaffolding):** Real-time instructions to the Spatial Audio, Projection Mapping, and Haptic Systems to dynamically tailor the sensory environment to optimally guide the visitor toward emotional breakthrough.
