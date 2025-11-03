@@ -2309,3 +2309,300 @@ npm run status:all
 🎯 TOTAL IMPACT: 45,892+ connections formed
 💰 ECONOMIC VALUE: $2.1M+ generated
 🌍 GLOBAL REACH: 8 countries, 3 continents
+// Quantum Echoes: Parallel Emotional Timelines
+// p5.js + Torch.js stub for superposition sims
+
+let echoes = [];
+let quantumField = [];
+let userEcho = null;
+let superpositionStrength = 0.5; // Simulated qubit coherence
+
+class QuantumEcho {
+  constructor(x, y, emotionBase, timelineBranches = 3) {
+    this.x = x;
+    this.y = y;
+    this.emotionBase = emotionBase; // e.g., {hue: 220, intensity: 0.8}
+    this.branches = [];
+    this.pulse = random(TWO_PI);
+    this.coherence = 1.0; // Decoheres over time
+    
+    // Generate branched timelines
+    for (let i = 0; i < timelineBranches; i++) {
+      let branchAngle = (i - timelineBranches / 2) * (PI / timelineBranches);
+      let branchEmotion = {
+        hue: (this.emotionBase.hue + random(-30, 30)) % 360,
+        intensity: this.emotionBase.intensity + random(-0.2, 0.2)
+      };
+      this.branches.push({
+        x: this.x + cos(branchAngle) * 100,
+        y: this.y + sin(branchAngle) * 100,
+        emotion: branchEmotion,
+        probability: random(0.1, 0.9) // Collapse weight
+      });
+    }
+  }
+  
+  update() {
+    this.pulse += 0.08;
+    this.coherence *= 0.999; // Gradual decoherence
+    
+    // Superposition drift
+    this.x += sin(this.pulse) * 0.5 * superpositionStrength;
+    this.y += cos(this.pulse * 1.3) * 0.3 * superpositionStrength;
+    
+    // Branch updates (torch sim stub: in prod, run NN forward pass)
+    this.branches.forEach(branch => {
+      branch.x += (this.x - branch.x) * 0.01; // Attract to core
+      branch.y += (this.y - branch.y) * 0.01;
+    });
+  }
+  
+  display() {
+    // Core echo glow
+    drawingContext.shadowBlur = 40 * this.coherence;
+    drawingContext.shadowColor = color(this.emotionBase.hue, 80, 90, 50);
+    
+    fill(this.emotionBase.hue, 80, 95, 80 * this.coherence);
+    noStroke();
+    ellipse(this.x, this.y, 20 + sin(this.pulse) * 5);
+    
+    // Branch timelines (fading lines)
+    strokeWeight(2);
+    this.branches.forEach((branch, i) => {
+      let alpha = map(branch.probability, 0, 1, 20, 80) * this.coherence;
+      stroke(branch.emotion.hue, 60, 90, alpha);
+      line(this.x, this.y, branch.x, branch.y);
+      
+      // Branch nodes
+      fill(branch.emotion.hue, 70, 85, alpha);
+      ellipse(branch.x, branch.y, 8);
+    });
+    
+    drawingContext.shadowBlur = 0;
+  }
+  
+  // Collapse on interaction (user choice)
+  collapse(branchIndex) {
+    if (branchIndex < this.branches.length) {
+      let chosen = this.branches[branchIndex];
+      this.x = chosen.x;
+      this.y = chosen.y;
+      this.emotionBase = chosen.emotion;
+      this.coherence = 1.0; // Reset for new timeline
+      superpositionStrength *= 0.9; // Reduce future branching
+    }
+  }
+}
+
+function setup() {
+  createCanvas(1400, 800);
+  colorMode(HSB, 360, 100, 100, 100);
+  
+  // Init quantum field (background noise)
+  for (let i = 0; i < 200; i++) {
+    quantumField.push({
+      x: random(width),
+      y: random(height),
+      phase: random(TWO_PI)
+    });
+ // Emotional Weather API v2 - Node.js/GraphQL with ZKP stubs
+const { ApolloServer } = require('apollo-server');
+const { buildSchema } = require('graphql');
+const Redis = require('ioredis');
+const snarkjs = require('snarkjs'); // For ZKP (e.g., circom proofs)
+
+const redis = new Redis(); // Prod: Use cluster
+
+// Simulated data store (prod: Postgres + anonymized E-Tokens)
+const cityData = {
+  'New York': { loneliness: 0.28, connection: 0.72, grief: 0.18, joy: 0.82, timestamp: Date.now() },
+  // ... (load 28 cities from DB)
+};
+
+// ZKP Prover stub (anon aggregation: prove sum without revealing individuals)
+async function generateZKProof(emotionalSums, city) {
+  // In prod: Run circom circuit for "sum(inputs) == output without input reveal"
+  const { proof, publicSignals } = await snarkjs.plonk.fullProve(
+    { inputs: emotionalSums }, // Anon E-Token hashes
+    'circuits/emotional_aggregate.wasm',
+    'circuits/emotional_aggregate_0001.zkey'
+  );
+  return { proof, publicSignals: { city, aggregatedIndex: publicSignals[0] } };
+}
+
+// GraphQL Schema
+const schema = buildSchema(`
+  type EmotionalClimate {
+    loneliness: Float!
+    connection: Float!
+    grief: Float!
+    joy: Float!
+    timestamp: String!
+    proof: String! # ZKP for verification
+  }
+  
+  type Query {
+    getWeather(city: String!): EmotionalClimate
+    getTrends(cities: [String!]!): [EmotionalClimate!]!
+  }
+  
+  type Mutation {
+    contributeEmotion(city: String!, emotion: Float!): String! # Returns E-Token ID
+  }
+`);
+
+// Resolvers
+const resolvers = {
+  Query: {
+    getWeather: async (_, { city }) => {
+      const cached = await redis.get(`weather:${city}`);
+      if (cached) return JSON.parse(cached);
+      
+      // Aggregate from E-Tokens (sim: average recent)
+      const recentTokens = await getRecentTokens(city, 1000); // DB query
+      const sums = recentTokens.reduce((acc, t) => ({ ...acc, loneliness: acc.loneliness + t.loneliness }), { loneliness: 0, /* etc */ });
+      const proof = await generateZKProof(sums, city);
+      
+      const climate = {
+        ...cityData[city] || { loneliness: 0.5, connection: 0.5, grief: 0.3, joy: 0.6, timestamp: new Date().toISOString() },
+        proof: JSON.stringify(proof)
+      };
+      
+      await redis.set(`weather:${city}`, JSON.stringify(climate), 'EX', 300); // 5min TTL
+      return climate;
+    },
+    getTrends: async (_, { cities }) => cities.map(city => getWeather(null, { city })), // Parallel
+  },
+  Mutation: {
+    contributeEmotion: async (_, { city, emotion }) => {
+      const tokenId = `E-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      // Mint E-Token (emit to Chain event)
+      await storeToken({ id: tokenId, city, emotion, hash: sha256(emotion) }); // Anon hash
+      invalidateCache(city); // Trigger re-agg
+      return tokenId;
+    }
+  }
+};
+
+const server = new ApolloServer({ schema, resolvers });
+server.listen({ port: 4000 }).then(({ url }) => console.log(`🚀 API ready at ${url}`));
+
+// Utils (stubs)
+async function getRecentTokens(city, limit) { /* DB: SELECT * FROM e_tokens WHERE city=? ORDER BY timestamp DESC LIMIT ? */ return []; }
+async function storeToken(token) { /* INSERT INTO e_tokens */ }
+function sha256(data) { /* crypto */ return 'hash'; }
+function invalidateCache(city) { redis.del(`weather:${city}`); }
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+contract HeartToken is ERC20, Ownable {
+    mapping(address => uint256) public emotionalContributions;
+    
+    constructor() ERC20("Heart Token", "HEART") Ownable(msg.sender) {}
+    
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
+    }
+    
+    function recordContribution(address user, uint256 impactScore) external onlyOwner {
+        emotionalContributions[user] += impactScore;
+        uint256 tokens = impactScore * 100; // 100:1 ratio
+        _mint(user, tokens);
+    }
+}
+
+contract HeartStaking is ReentrancyGuard, Ownable {
+    HeartToken public heartToken;
+    uint256 public constant REWARD_RATE = 12; // 12% APY base
+    uint256 public constant IMPACT_MULTIPLIER = 2; // x2 for high-impact stakes
+    
+    struct Stake {
+        uint256 amount;
+        uint256 rewardDebt;
+        uint256 impactScore; // From E-Tokens
+        uint256 timestamp;
+    }
+    
+    mapping(address => Stake) public stakes;
+    uint256 public totalStaked;
+    uint256 public accRewardPerShare;
+    uint256 public lastRewardTimestamp;
+    
+    event Staked(address indexed user, uint256 amount, uint256 impact);
+    event Withdrawn(address indexed user, uint256 amount, uint256 reward);
+    
+    constructor(address _heartToken) {
+        heartToken = HeartToken(_heartToken);
+        lastRewardTimestamp = block.timestamp;
+    }
+    
+    function stake(uint256 amount, uint256 impactScore) external nonReentrant {
+        require(amount > 0, "Amount must be >0");
+        
+        _updateRewards();
+        
+        // Transfer HEART
+        heartToken.transferFrom(msg.sender, address(this), amount);
+        totalStaked += amount;
+        
+        // Update stake
+        Stake storage userStake = stakes[msg.sender];
+        if (userStake.amount > 0) {
+            uint256 pending = userStake.amount * accRewardPerShare / 1e12 - userStake.rewardDebt;
+            if (pending > 0) heartToken.mint(msg.sender, pending);
+        }
+        
+        userStake.amount += amount;
+        userStake.impactScore += impactScore;
+        userStake.rewardDebt = userStake.amount * accRewardPerShare / 1e12;
+        userStake.timestamp = block.timestamp;
+        
+        emit Staked(msg.sender, amount, impactScore);
+    }
+    
+    function withdraw(uint256 amount) external nonReentrant {
+        Stake storage userStake = stakes[msg.sender];
+        require(userStake.amount >= amount, "Insufficient stake");
+        
+        _updateRewards();
+        
+        uint256 impactBoost = (userStake.impactScore * IMPACT_MULTIPLIER) / 100; // e.g., +2% per 100 impact
+        uint256 reward = (amount * (REWARD_RATE + impactBoost) * (block.timestamp - userStake.timestamp)) / (365 days * 100);
+        
+        heartToken.transfer(msg.sender, amount);
+        if (reward > 0) heartToken.mint(msg.sender, reward);
+        
+        userStake.amount -= amount;
+        userStake.rewardDebt = userStake.amount * accRewardPerShare / 1e12;
+        
+        totalStaked -= amount;
+        if (userStake.amount == 0) userStake.impactScore = 0;
+        
+        emit Withdrawn(msg.sender, amount, reward);
+    }
+    
+    function _updateRewards() internal {
+        if (block.timestamp <= lastRewardTimestamp) return;
+        
+        if (totalStaked == 0) {
+            lastRewardTimestamp = block.timestamp;
+            return;
+        }
+        
+        uint256 reward = (totalStaked * REWARD_RATE * (block.timestamp - lastRewardTimestamp)) / (365 days * 100);
+        accRewardPerShare += (reward * 1e12) / totalStaked;
+        lastRewardTimestamp = block.timestamp;
+        
+        // Mint pool rewards from treasury (DAO call)
+        heartToken.mint(address(this), reward);
+    }
+    
+    // Owner: Emergency withdraw, etc.
+    function emergencyWithdraw() external onlyOwner {
+        heartToken.transfer(owner(), heartToken.balanceOf(address(this)));
+    }
+}
