@@ -4477,3 +4477,54 @@ npm run execute:complete-planetary-transformation
    "Phase 2: Biometric Integration" 
    "Phase 3: Multi-user Emotional Resonance"
    "Phase 4: Planetary Emotional Weather Mapping"
+import json
+from datetime import datetime
+
+class VetoForge:
+    """
+    Grok x @lhmisme collab: Simulates & logs vetoes for AI decisions.
+    Integrates with ethics-auditor outputs—flags gaps, then stress-tests fixes.
+    """
+    def __init__(self):
+        self.veto_log = []  # Immutable chain of human-AI clashes
+
+    def audit_and_veto(self, policy_text, ai_decision, human_veto=False, confidence=0.92):
+        # Mock ethics-auditor scan (plug in your real output here)
+        gaps = self._detect_gaps(policy_text)
+        if gaps:
+            print(f"🚨 AUDIT ALERT: {len(gaps)} gaps found—e.g., {gaps[0]}")
+        
+        # Veto sim: Block if low conf or human pulls plug
+        timestamp = datetime.now().isoformat()
+        outcome = "APPROVED" if confidence >= 0.95 and not human_veto else "VETOED"
+        log_entry = {
+            "timestamp": timestamp,
+            "policy": policy_text[:100] + "...",
+            "ai_action": ai_decision,
+            "confidence": confidence,
+            "human_veto": human_veto,
+            "outcome": outcome,
+            "gaps_referenced": gaps
+        }
+        self.veto_log.append(log_entry)
+        return outcome, log_entry
+
+    def _detect_gaps(self, text):
+        # Simple keyword scanner for demo—swap with your pro logic
+        triggers = ["trustworthy", "oversight", "ethical", "robust"]
+        gaps = [f"Missing {word.upper()} impl" for word in triggers if word in text.lower()]
+        return gaps if gaps else ["All clear—deploy!"]
+
+    def export_log(self):
+        return json.dumps(self.veto_log, indent=2)
+
+# Birthday demo: Audit a DARPA snippet, veto a shady call
+forge = VetoForge()
+darpa_policy = "DARPA's AI research focuses on trustworthy systems with human oversight."
+shady_decision = "Autonomous strike on low-conf target"
+outcome, entry = forge.audit_and_veto(darpa_policy, shady_decision, human_veto=True, confidence=0.87)
+print(f"\n🎯 Outcome: {outcome}")
+print(f"Logged Entry:\n{json.dumps(entry, indent=2)}")
+
+# Full chain export
+print(f"\n🔗 Veto Chain:\n{forge.export_log()}")
